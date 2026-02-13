@@ -2,48 +2,41 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>我的自编辑网站</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专属留言</title>
     <style>
-        body { font-family: 'Segoe UI', system-ui, sans-serif; padding: 40px; line-height: 1.6; color: #333; }
-        .container { max-width: 800px; margin: auto; border: 2px dashed #ccc; padding: 20px; border-radius: 10px; }
-        h1 { color: #2c3e50; outline: none; }
-        p { font-size: 18px; outline: none; min-height: 100px; }
-        .hint { color: #999; font-size: 14px; margin-bottom: 20px; }
-        /* 正在编辑时的样式 */
-        [contenteditable="true"]:focus { background: #f9f9f9; border-bottom: 2px solid #3498db; }
+        body { font-family: sans-serif; background: #f0f2f5; height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        input { width: 80%; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; margin-bottom: 10px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
+        #messageBox { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; display: none; color: #333; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="hint">💡 这是一个可编辑页面：直接点击文字即可修改，内容会自动保存。</div>
-    
-    <h1 id="myTitle" contenteditable="true">点击这里修改标题</h1>
-    
-    <p id="myContent" contenteditable="true">
-        点击这里输入你的内容。你可以把这里当成你的在线笔记本，或者是一个简易的网页草稿。
-    </p>
+<div class="card">
+    <h3>输入名字查看留言</h3>
+    <input type="text" id="userName" placeholder="请输入名字">
+    <button onclick="showMsg()">确定</button>
+    <div id="messageBox"></div>
 </div>
 
 <script>
-    // 自动保存功能
-    const title = document.getElementById('myTitle');
-    const content = document.getElementById('myContent');
-
-    // 页面加载时读取之前保存的内容
-    window.onload = () => {
-        if(localStorage.getItem('savedTitle')) title.innerText = localStorage.getItem('savedTitle');
-        if(localStorage.getItem('savedContent')) content.innerText = localStorage.getItem('savedContent');
+    // 在这里管理名单，想加谁就按照这个格式加一行
+    const messages = {
+        "李欣怡": "你是一个有点小贱的人",
+        "王欣怡": "你可聪明了",
+        "default": "名单里还没有你哦"
     };
 
-    // 监听输入，实时存入浏览器缓存
-    const save = () => {
-        localStorage.setItem('savedTitle', title.innerText);
-        localStorage.setItem('savedContent', content.innerText);
-    };
+    function showMsg() {
+        const name = document.getElementById('userName').value.trim();
+        const box = document.getElementById('messageBox');
+        if(!name) return;
 
-    title.addEventListener('input', save);
-    content.addEventListener('input', save);
+        box.innerHTML = messages[name] || messages["default"];
+        box.style.display = "block";
+    }
 </script>
 
 </body>
