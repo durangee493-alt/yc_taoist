@@ -3,44 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>我的贪吃蛇小游戏</title>
+    <title>贪吃蛇-全难度挑战</title>
     <style>
         body { font-family: sans-serif; background: #2c3e50; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; color: white; }
-        canvas { border: 5px solid #ecf0f1; background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.5); max-width: 90vw; max-height: 90vw; }
-        .score-board { font-size: 24px; margin-bottom: 10px; font-weight: bold; }
-        /* 手机按键样式 */
-        .controls { display: grid; grid-template-columns: repeat(3, 60px); grid-gap: 10px; margin-top: 20px; }
-        .btn { width: 60px; height: 60px; background: #34495e; border: none; border-radius: 10px; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; user-select: none; }
-        .btn:active { background: #3498db; }
-        .up { grid-column: 2; }
-        .left { grid-column: 1; }
-        .down { grid-column: 2; }
-        .right { grid-column: 3; }
+        .menu { text-align: center; background: rgba(0,0,0,0.3); padding: 25px; border-radius: 20px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { margin-top: 0; color: #2ecc71; font-size: 22px; }
+        
+        /* 按钮组样式 */
+        .btn-group { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+        .diff-item { display: flex; flex-direction: column; align-items: center; }
+        .diff-btn { width: 100%; padding: 12px; border: none; border-radius: 15px; cursor: pointer; font-size: 16px; font-weight: bold; color: white; transition: 0.2s; position: relative; }
+        .diff-btn:active { transform: scale(0.98); }
+        
+        /* 难度颜色 */
+        .hard { background: #e74c3c; }
+        .normal { background: #f39c12; }
+        .easy { background: #2ecc71; }
+        .slow { background: #3498db; }
+
+        /* 最高分小字样式 */
+        .best-tag { font-size: 12px; margin-top: 4px; color: #f1c40f; font-weight: bold; }
+
+        /* 游戏界面 */
+        canvas { border: 5px solid #ecf0f1; background: #000; display: none; margin-top: 10px; max-width: 90vw; }
+        .score-board { font-size: 20px; margin-bottom: 10px; display: none; width: 300px; justify-content: space-between; }
+        .controls { display: none; grid-template-columns: repeat(3, 60px); grid-gap: 15px; margin-top: 20px; }
+        .btn { width: 60px; height: 60px; background: #34495e; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
     </style>
 </head>
 <body>
 
-    <div class="score-board">得分: <span id="score">0</span></div>
+    <div id="menu" class="menu">
+        <h2>🐍 贪吃蛇挑战赛</h2>
+        <div class="btn-group">
+            <div class="diff-item">
+                <button class="diff-btn hard" onclick="startGame(80, '高手')">高手模式 (极速)</button>
+                <div class="best-tag">最高分: <span id="best_高手">0</span></div>
+            </div>
+            <div class="diff-item">
+                <button class="diff-btn normal" onclick="startGame(130, '普通')">普通模式 (标准)</button>
+                <div class="best-tag">最高分: <span id="best_普通">0</span></div>
+            </div>
+            <div class="diff-item">
+                <button class="diff-btn easy" onclick="startGame(200, '新手')">新手模式 (推荐)</button>
+                <div class="best-tag">最高分: <span id="best_新手">0</span></div>
+            </div>
+            <div class="diff-item">
+                <button class="diff-btn slow" onclick="startGame(350, '慢速')">慢速模式 (悠闲)</button>
+                <div class="best-tag">最高分: <span id="best_慢速">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameHeader" class="score-board">
+        <span>分数: <b id="currentScore">0</b></span>
+        <span style="color:#f1c40f">当前难度最高: <b id="displayBest">0</b></span>
+    </div>
+
     <canvas id="snakeGame" width="300" height="300"></canvas>
 
-    <div class="controls">
-        <div class="btn up" onclick="changeDir('UP')">▲</div>
-        <div class="btn left" onclick="changeDir('LEFT')">◀</div>
-        <div class="btn down" onclick="changeDir('DOWN')">▼</div>
-        <div class="btn right" onclick="changeDir('RIGHT')">▶</div>
+    <div id="controls" class="controls">
+        <div style="grid-column: 2" class="btn" onclick="changeDir('UP')">▲</div>
+        <div style="grid-column: 1" class="btn" onclick="changeDir('LEFT')">◀</div>
+        <div style="grid-column: 2" class="btn" onclick="changeDir('DOWN')">▼</div>
+        <div style="grid-column: 3" class="btn" onclick="changeDir('RIGHT')">▶</div>
     </div>
 
 <script>
     const canvas = document.getElementById("snakeGame");
     const ctx = canvas.getContext("2d");
-    const scoreElement = document.getElementById('score');
-    const box = 15; // 每一格的大小
-    let score = 0;
-    let d = "RIGHT";
+    const box = 15;
+    let score = 0, d = "RIGHT", gameLoop, currentDiffLabel = "";
     let snake = [{x: 10 * box, y: 10 * box}];
-    let food = getRandomFood();
+    let food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
 
-    // 键盘控制
+    // 页面初始化：读取并显示所有难度的最高分
+    const difficulties = ['高手', '普通', '新手', '慢速'];
+    difficulties.forEach(diff => {
+        const val = localStorage.getItem('snakeBest_' + diff) || 0;
+        document.getElementById('best_' + diff).innerText = val;
+    });
+
+    function startGame(speed, diffLabel) {
+        currentDiffLabel = diffLabel;
+        const savedBest = localStorage.getItem('snakeBest_' + diffLabel) || 0;
+        
+        document.getElementById('menu').style.display = 'none';
+        document.getElementById('gameHeader').style.display = 'flex';
+        document.getElementById('controls').style.display = 'grid';
+        document.getElementById('displayBest').innerText = savedBest;
+        canvas.style.display = 'block';
+        gameLoop = setInterval(draw, speed);
+    }
+
+    // 方向控制逻辑
     document.addEventListener("keydown", (e) => {
         if(e.keyCode == 37 && d != "RIGHT") d = "LEFT";
         else if(e.keyCode == 38 && d != "DOWN") d = "UP";
@@ -48,63 +104,52 @@
         else if(e.keyCode == 40 && d != "UP") d = "DOWN";
     });
 
-    // 按钮控制
-    function changeDir(newDir) {
-        if(newDir == "LEFT" && d != "RIGHT") d = "LEFT";
-        if(newDir == "UP" && d != "DOWN") d = "UP";
-        if(newDir == "RIGHT" && d != "LEFT") d = "RIGHT";
-        if(newDir == "DOWN" && d != "UP") d = "DOWN";
-    }
-
-    function getRandomFood() {
-        return {
-            x: Math.floor(Math.random() * 19 + 1) * box,
-            y: Math.floor(Math.random() * 19 + 1) * box
-        };
+    function changeDir(n) {
+        if(n == 'LEFT' && d != 'RIGHT') d = 'LEFT';
+        if(n == 'UP' && d != 'DOWN') d = 'UP';
+        if(n == 'RIGHT' && d != 'LEFT') d = 'RIGHT';
+        if(n == 'DOWN' && d != 'UP') d = 'DOWN';
     }
 
     function draw() {
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 画蛇
         for(let i = 0; i < snake.length; i++) {
             ctx.fillStyle = (i == 0) ? "#2ecc71" : "#ecf0f1";
             ctx.fillRect(snake[i].x, snake[i].y, box, box);
-            ctx.strokeStyle = "black";
-            ctx.strokeRect(snake[i].x, snake[i].y, box, box);
         }
 
-        // 画食物
         ctx.fillStyle = "#e74c3c";
         ctx.fillRect(food.x, food.y, box, box);
 
-        let snakeX = snake[0].x;
-        let snakeY = snake[0].y;
+        let sX = snake[0].x, sY = snake[0].y;
+        if( d == "LEFT") sX -= box;
+        if( d == "UP") sY -= box;
+        if( d == "RIGHT") sX += box;
+        if( d == "DOWN") sY += box;
 
-        if( d == "LEFT") snakeX -= box;
-        if( d == "UP") snakeY -= box;
-        if( d == "RIGHT") snakeX += box;
-        if( d == "DOWN") snakeY += box;
-
-        // 吃到食物
-        if(snakeX == food.x && snakeY == food.y) {
+        if(sX == food.x && sY == food.y) {
             score++;
-            scoreElement.innerText = score;
-            food = getRandomFood();
+            document.getElementById('currentScore').innerText = score;
+            food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
         } else {
             snake.pop();
         }
 
-        let newHead = {x: snakeX, y: snakeY};
+        let newHead = {x: sX, y: sY};
 
-        // 死亡检测：撞墙或撞自己
-        if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
-            clearInterval(game);
-            alert("游戏结束！最终得分: " + score);
-            location.reload(); // 自动刷新重新开始
+        if(sX < 0 || sX >= canvas.width || sY < 0 || sY >= canvas.height || collision(newHead, snake)) {
+            clearInterval(gameLoop);
+            const oldBest = localStorage.getItem('snakeBest_' + currentDiffLabel) || 0;
+            if(score > oldBest) {
+                localStorage.setItem('snakeBest_' + currentDiffLabel, score);
+                alert("🎉 新纪录！你在[" + currentDiffLabel + "]模式获得了 " + score + " 分！");
+            } else {
+                alert("游戏结束！得分: " + score);
+            }
+            location.reload(); 
         }
-
         snake.unshift(newHead);
     }
 
@@ -114,9 +159,6 @@
         }
         return false;
     }
-
-    let game = setInterval(draw, 120); // 速度设置（毫秒）
 </script>
-
 </body>
 </html>
