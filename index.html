@@ -3,61 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>贪吃蛇-全难度挑战</title>
+    <title>精致版贪吃蛇</title>
     <style>
-        body { font-family: sans-serif; background: #2c3e50; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; color: white; }
+        body { font-family: 'PingFang SC', sans-serif; background: #2c3e50; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; color: white; }
         .menu { text-align: center; background: rgba(0,0,0,0.3); padding: 25px; border-radius: 20px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { margin-top: 0; color: #2ecc71; font-size: 22px; }
-        
-        /* 按钮组样式 */
+        h2 { margin-top: 0; color: #2ecc71; }
         .btn-group { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
         .diff-item { display: flex; flex-direction: column; align-items: center; }
-        .diff-btn { width: 100%; padding: 12px; border: none; border-radius: 15px; cursor: pointer; font-size: 16px; font-weight: bold; color: white; transition: 0.2s; position: relative; }
-        .diff-btn:active { transform: scale(0.98); }
-        
-        /* 难度颜色 */
-        .hard { background: #e74c3c; }
-        .normal { background: #f39c12; }
-        .easy { background: #2ecc71; }
-        .slow { background: #3498db; }
-
-        /* 最高分小字样式 */
-        .best-tag { font-size: 12px; margin-top: 4px; color: #f1c40f; font-weight: bold; }
+        .diff-btn { width: 100%; padding: 12px; border: none; border-radius: 15px; cursor: pointer; font-size: 16px; font-weight: bold; color: white; transition: 0.2s; }
+        .hard { background: #e74c3c; } .normal { background: #f39c12; } .easy { background: #2ecc71; } .slow { background: #3498db; }
+        .best-tag { font-size: 12px; margin-top: 4px; color: #f1c40f; }
 
         /* 游戏界面 */
-        canvas { border: 5px solid #ecf0f1; background: #000; display: none; margin-top: 10px; max-width: 90vw; }
-        .score-board { font-size: 20px; margin-bottom: 10px; display: none; width: 300px; justify-content: space-between; }
-        .controls { display: none; grid-template-columns: repeat(3, 60px); grid-gap: 15px; margin-top: 20px; }
-        .btn { width: 60px; height: 60px; background: #34495e; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        #gameHeader { font-size: 20px; margin-bottom: 10px; display: none; width: 300px; justify-content: space-between; }
+        canvas { border: 8px solid #34495e; background: #1a1a1a; display: none; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .controls { display: none; grid-template-columns: repeat(3, 65px); grid-gap: 15px; margin-top: 20px; }
+        .btn { width: 65px; height: 65px; background: #34495e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 0 #1a1a1a; }
+        .btn:active { transform: translateY(2px); box-shadow: none; }
     </style>
 </head>
 <body>
 
     <div id="menu" class="menu">
-        <h2>🐍 贪吃蛇挑战赛</h2>
+        <h2>🐍 精致版贪吃蛇</h2>
         <div class="btn-group">
             <div class="diff-item">
-                <button class="diff-btn hard" onclick="startGame(80, '高手')">高手模式 (极速)</button>
-                <div class="best-tag">最高分: <span id="best_高手">0</span></div>
+                <button class="diff-btn hard" onclick="startGame(80, '高手')">高手模式</button>
+                <div class="best-tag">最高: <span id="best_高手">0</span></div>
             </div>
             <div class="diff-item">
-                <button class="diff-btn normal" onclick="startGame(130, '普通')">普通模式 (标准)</button>
-                <div class="best-tag">最高分: <span id="best_普通">0</span></div>
+                <button class="diff-btn normal" onclick="startGame(130, '普通')">普通模式</button>
+                <div class="best-tag">最高: <span id="best_普通">0</span></div>
             </div>
             <div class="diff-item">
-                <button class="diff-btn easy" onclick="startGame(200, '新手')">新手模式 (推荐)</button>
-                <div class="best-tag">最高分: <span id="best_新手">0</span></div>
-            </div>
-            <div class="diff-item">
-                <button class="diff-btn slow" onclick="startGame(350, '慢速')">慢速模式 (悠闲)</button>
-                <div class="best-tag">最高分: <span id="best_慢速">0</span></div>
+                <button class="diff-btn easy" onclick="startGame(200, '新手')">新手模式</button>
+                <div class="best-tag">最高: <span id="best_新手">0</span></div>
             </div>
         </div>
     </div>
 
-    <div id="gameHeader" class="score-board">
-        <span>分数: <b id="currentScore">0</b></span>
-        <span style="color:#f1c40f">当前难度最高: <b id="displayBest">0</b></span>
+    <div id="gameHeader">
+        <span>🍎: <b id="currentScore">0</b></span>
+        <span style="color:#f1c40f">🏆: <b id="displayBest">0</b></span>
     </div>
 
     <canvas id="snakeGame" width="300" height="300"></canvas>
@@ -72,93 +59,106 @@
 <script>
     const canvas = document.getElementById("snakeGame");
     const ctx = canvas.getContext("2d");
-    const box = 15;
+    const box = 20; // 调大了一点格子，让画风更圆润
     let score = 0, d = "RIGHT", gameLoop, currentDiffLabel = "";
-    let snake = [{x: 10 * box, y: 10 * box}];
-    let food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
+    let snake = [{x: 5 * box, y: 5 * box}];
+    let food = { x: Math.floor(Math.random() * 14 + 1) * box, y: Math.floor(Math.random() * 14 + 1) * box };
 
-    // 页面初始化：读取并显示所有难度的最高分
-    const difficulties = ['高手', '普通', '新手', '慢速'];
-    difficulties.forEach(diff => {
-        const val = localStorage.getItem('snakeBest_' + diff) || 0;
-        document.getElementById('best_' + diff).innerText = val;
+    // 初始化最高分显示
+    ['高手', '普通', '新手'].forEach(diff => {
+        document.getElementById('best_' + diff).innerText = localStorage.getItem('snakeBest_' + diff) || 0;
     });
 
     function startGame(speed, diffLabel) {
         currentDiffLabel = diffLabel;
-        const savedBest = localStorage.getItem('snakeBest_' + diffLabel) || 0;
-        
         document.getElementById('menu').style.display = 'none';
         document.getElementById('gameHeader').style.display = 'flex';
         document.getElementById('controls').style.display = 'grid';
-        document.getElementById('displayBest').innerText = savedBest;
+        document.getElementById('displayBest').innerText = localStorage.getItem('snakeBest_' + diffLabel) || 0;
         canvas.style.display = 'block';
         gameLoop = setInterval(draw, speed);
     }
 
-    // 方向控制逻辑
-    document.addEventListener("keydown", (e) => {
-        if(e.keyCode == 37 && d != "RIGHT") d = "LEFT";
-        else if(e.keyCode == 38 && d != "DOWN") d = "UP";
-        else if(e.keyCode == 39 && d != "LEFT") d = "RIGHT";
-        else if(e.keyCode == 40 && d != "UP") d = "DOWN";
-    });
+    // 绘制苹果函数
+    function drawApple(x, y) {
+        // 苹果主体
+        ctx.fillStyle = "#e74c3c";
+        ctx.beginPath();
+        ctx.arc(x + box/2, y + box/2 + 2, box/2 - 2, 0, Math.PI * 2);
+        ctx.fill();
+        // 苹果梗
+        ctx.fillStyle = "#795548";
+        ctx.fillRect(x + box/2 - 1, y + 2, 2, 6);
+        // 绿叶子
+        ctx.fillStyle = "#2ecc71";
+        ctx.beginPath();
+        ctx.ellipse(x + box/2 + 3, y + 3, 4, 2, Math.PI/4, 0, Math.PI * 2);
+        ctx.fill();
+    }
 
-    function changeDir(n) {
-        if(n == 'LEFT' && d != 'RIGHT') d = 'LEFT';
-        if(n == 'UP' && d != 'DOWN') d = 'UP';
-        if(n == 'RIGHT' && d != 'LEFT') d = 'RIGHT';
-        if(n == 'DOWN' && d != 'UP') d = 'DOWN';
+    // 绘制蛇身体函数
+    function drawSnakePart(part, isHead) {
+        ctx.fillStyle = isHead ? "#2ecc71" : "#27ae60";
+        // 画圆角矩形身体
+        const r = 5; 
+        ctx.beginPath();
+        ctx.roundRect(part.x + 1, part.y + 1, box - 2, box - 2, r);
+        ctx.fill();
+
+        if (isHead) {
+            // 画眼睛
+            ctx.fillStyle = "white";
+            let eyeX1, eyeY1, eyeX2, eyeY2;
+            if(d === "RIGHT") { eyeX1=eyeX2=part.x+12; eyeY1=part.y+5; eyeY2=part.y+15; }
+            else if(d === "LEFT") { eyeX1=eyeX2=part.x+3; eyeY1=part.y+5; eyeY2=part.y+15; }
+            else if(d === "UP") { eyeY1=eyeY2=part.y+3; eyeX1=part.x+5; eyeX2=part.x+15; }
+            else { eyeY1=eyeY2=part.y+12; eyeX1=part.x+5; eyeX2=part.x+15; }
+            
+            ctx.beginPath(); ctx.arc(eyeX1, eyeY1, 2.5, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(eyeX2, eyeY2, 2.5, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "black";
+            ctx.beginPath(); ctx.arc(eyeX1, eyeY1, 1, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(eyeX2, eyeY2, 1, 0, Math.PI*2); ctx.fill();
+        }
     }
 
     function draw() {
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // 背景透明处理
+        ctx.fillStyle = "#1a1a1a"; ctx.fillRect(0,0,300,300);
 
-        for(let i = 0; i < snake.length; i++) {
-            ctx.fillStyle = (i == 0) ? "#2ecc71" : "#ecf0f1";
-            ctx.fillRect(snake[i].x, snake[i].y, box, box);
-        }
+        // 画网格背景（淡淡的纹理感）
+        ctx.strokeStyle = "#222";
+        for(let i=0; i<300; i+=box) { ctx.strokeRect(i, 0, box, 300); ctx.strokeRect(0, i, 300, box); }
 
-        ctx.fillStyle = "#e74c3c";
-        ctx.fillRect(food.x, food.y, box, box);
+        snake.forEach((part, index) => drawSnakePart(part, index === 0));
+        drawApple(food.x, food.y);
 
         let sX = snake[0].x, sY = snake[0].y;
-        if( d == "LEFT") sX -= box;
-        if( d == "UP") sY -= box;
-        if( d == "RIGHT") sX += box;
-        if( d == "DOWN") sY += box;
+        if(d === "LEFT") sX -= box; if(d === "UP") sY -= box; if(d === "RIGHT") sX += box; if(d === "DOWN") sY += box;
 
-        if(sX == food.x && sY == food.y) {
+        if(sX === food.x && sY === food.y) {
             score++;
             document.getElementById('currentScore').innerText = score;
-            food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
-        } else {
-            snake.pop();
-        }
+            food = { x: Math.floor(Math.random() * 14 + 1) * box, y: Math.floor(Math.random() * 14 + 1) * box };
+        } else { snake.pop(); }
 
-        let newHead = {x: sX, y: sY};
-
-        if(sX < 0 || sX >= canvas.width || sY < 0 || sY >= canvas.height || collision(newHead, snake)) {
+        let nH = {x: sX, y: sY};
+        if(sX < 0 || sX >= 300 || sY < 0 || sY >= 300 || collision(nH, snake)) {
             clearInterval(gameLoop);
-            const oldBest = localStorage.getItem('snakeBest_' + currentDiffLabel) || 0;
-            if(score > oldBest) {
-                localStorage.setItem('snakeBest_' + currentDiffLabel, score);
-                alert("🎉 新纪录！你在[" + currentDiffLabel + "]模式获得了 " + score + " 分！");
-            } else {
-                alert("游戏结束！得分: " + score);
-            }
-            location.reload(); 
+            const best = localStorage.getItem('snakeBest_' + currentDiffLabel) || 0;
+            if(score > best) localStorage.setItem('snakeBest_' + currentDiffLabel, score);
+            alert("游戏结束！🍎吃到了 " + score + " 个");
+            location.reload();
         }
-        snake.unshift(newHead);
+        snake.unshift(nH);
     }
 
-    function collision(head, array) {
-        for(let i = 0; i < array.length; i++) {
-            if(head.x == array[i].x && head.y == array[i].y) return true;
-        }
-        return false;
-    }
+    function changeDir(n) { if(n=='LEFT'&&d!='RIGHT')d='LEFT'; if(n=='UP'&&d!='DOWN')d='UP'; if(n=='RIGHT'&&d!='LEFT')d='RIGHT'; if(n=='DOWN'&&d!='UP')d='DOWN'; }
+    function collision(h, a) { return a.some(s => s.x === h.x && s.y === h.y); }
+    document.addEventListener("keydown", (e) => { 
+        const keys = {37:'LEFT', 38:'UP', 39:'RIGHT', 40:'DOWN'};
+        if(keys[e.keyCode]) changeDir(keys[e.keyCode]);
+    });
 </script>
 </body>
 </html>
